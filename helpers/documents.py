@@ -31,5 +31,11 @@ def get_document_raw_html_path(document_id):
 def get_document_raw_md_path(document_id):
     return os.path.join(DOCUMENTS_ROOT_PATH, document_id, "{}_raw.md".format(document_id))
 
+def get_document_edited_md_path(document_id):
+    return os.path.join(DOCUMENTS_ROOT_PATH, document_id, "{}_edited.md".format(document_id))
+
 def get_document_cleaned_md_path(document_id):
     return os.path.join(DOCUMENTS_ROOT_PATH, document_id, "{}_cleaned.md".format(document_id))
+
+def get_document_logfile_path(document_id):
+    return os.path.join(DOCUMENTS_ROOT_PATH, document_id, "{}_logfile.md".format(document_id))
