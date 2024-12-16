@@ -28,6 +28,7 @@ parser_html2md.set_defaults(func=skeazo.convert.convert)
 # Create the parser for the 'clean' command
 parser_clean = subparsers.add_parser('clean', help="Clean a markdown file")
 parser_clean.add_argument('id', help="Document id")
+parser_clean.add_argument('-f', '--force', choices = ['from-raw', 'from-edited'], help="Force document cleaning from a specific file")
 parser_clean.set_defaults(func=skeazo.clean.clean)
 
 # Create the parser for the 'edit' command

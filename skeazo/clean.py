@@ -14,34 +14,57 @@ logger = logging.getLogger(__name__)
 def clean(args):
     document_id = args.id
     document_raw_md_path = helpers.documents.get_document_raw_md_path(document_id)
+    document_edited_md_path = helpers.documents.get_document_edited_md_path(document_id)
     document_cleaned_md_path = helpers.documents.get_document_cleaned_md_path(document_id)
 
-    logging.debug("Clean document {}".format(document_id))
+    # Create the cleaned file from (by order of priority)
+    # - itself
+    # - the edited file
+    # - the raw file
 
-    if os.path.isfile(document_cleaned_md_path):
-        # If a cleaned file already exist, cleaning rules are applied on it
-        with open(document_cleaned_md_path, 'r', encoding='utf-8') as file_in:
-            document = file_in.readlines()
+    if args.force == 'from-raw':
+        if os.path.isfile(document_raw_md_path):
+            logger.info('Clean document from raw version. (forced)')
+            in_filepath = document_raw_md_path
+        else:
+            logger.error("Raw markdown file not found.")
+            logger.error(f"Run ./skeazo-cli.py convert {document_id}")
+            return
+    elif args.force == 'from-edited':
+        if os.path.isfile(document_edited_md_path):
+            logger.info('Clean document from edited version (forced).')
+            in_filepath = document_edited_md_path
+        else:
+            logger.error("Edited markdown file not found.")
+            logger.error(f"Run ./skeazo-cli.py edit {document_id}")
+            return
+    elif os.path.isfile(document_cleaned_md_path):
+        logger.info('Clean document from cleaned version of itself.')
+        in_filepath = document_cleaned_md_path
+    elif os.path.isfile(document_edited_md_path):
+        logger.info('Clean document from edited version.')
+        in_filepath = document_edited_md_path
     elif os.path.isfile(document_raw_md_path):
-        with open(document_raw_md_path, 'r', encoding='utf-8') as file_in:
-            document = file_in.readlines()
+        logger.info('Clean document from raw version.')
+        in_filepath = document_raw_md_path
     else:
         logging.error("Mardown file not found.")
         logging.error(f"Run ./skeazo-cli.py convert {document_id}")
         return
+    
+    with open(in_filepath, 'r', encoding='utf-8') as file_in:
+        with open(document_cleaned_md_path, 'w', encoding='utf-8') as file_out:
+            in_header = False
 
-    with open(document_cleaned_md_path, 'w', encoding='utf-8') as file_out:
-        in_header = False
-
-        for line in document:
-            # Header is not cleaned
-            if line == "---\n":
-                in_header = not in_header
-                file_out.write(line)
-            elif in_header:
-                file_out.write(line)
-            else:
-                file_out.write(do_cleaning(line))
+            for line in file_in.readlines():
+                # Header is not cleaned
+                if line == "---\n":
+                    in_header = not in_header
+                    file_out.write(line)
+                elif in_header:
+                    file_out.write(line)
+                else:
+                    file_out.write(do_cleaning(line))
 
 def do_cleaning(line):
     # Strip leading and trailling spaces
