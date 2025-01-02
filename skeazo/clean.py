@@ -71,7 +71,11 @@ def do_cleaning(line):
     line = line[:-1].strip()
 
     # Set non breakable space before : ":;?!"
-    pattern_punctution = re.compile(r"\b\s?(?P<punctuation>[:;?!])")
-    line = pattern_punctution.sub(f"{CHAR_NBSP}\g<punctuation>", line)
+    pattern_punctuation = re.compile(r"\b\s?(?P<punctuation>[:;?!])")
+    line = pattern_punctuation.sub(f"{CHAR_NBSP}\g<punctuation>", line)
+
+    # Add missing space after : "."
+    pattern_punctuation = re.compile(r"\b(?P<punctuation>[.])\b")
+    line = pattern_punctuation.sub(f"\g<punctuation> ", line)
 
     return f"{line}\n"
