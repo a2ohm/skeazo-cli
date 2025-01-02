@@ -70,9 +70,13 @@ def do_cleaning(line):
     # Strip leading and trailling spaces
     line = line[:-1].strip()
 
-    # Set non breakable space before : ":;?!"
-    pattern_punctuation = re.compile(r"\b\s?(?P<punctuation>[:;?!])")
+    # Set non breakable space before : ":;?!»"
+    pattern_punctuation = re.compile(r"\b\s?(?P<punctuation>[:;?!»])")
     line = pattern_punctuation.sub(f"{CHAR_NBSP}\g<punctuation>", line)
+
+    # Set non breakable space after : "«"
+    pattern_punctuation = re.compile(r"(?P<punctuation>[«])\s?\b")
+    line = pattern_punctuation.sub(f"\g<punctuation>{CHAR_NBSP}", line)
 
     # Add missing space after : "."
     pattern_punctuation = re.compile(r"\b(?P<punctuation>[.])\b")
