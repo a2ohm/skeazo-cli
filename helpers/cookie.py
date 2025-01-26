@@ -10,18 +10,18 @@ import helpers.documents
 logger = logging.getLogger(__name__)
 
 # Cookie
-# A cookie (.skeazo file with yaml formatted data) is stored with each document
+# A cookie (file with yaml formatted data) is stored with each document
+
+TITLE = "title"
+AUTHOR = "author"
+PUBLICATION = "date_of_publication"
+SOURCE_NAME = "source_name"
+SOURCE_URI = "source_uri"
 
 class Cookie:
-    TITLE = "title"
-    AUTHOR = "author"
-    PUBLICATION = "date_of_publication"
-    SOURCE_NAME = "source_name"
-    SOURCE_URI = "source_uri"
-
     def __init__(self, document_id):
         self.document_id = document_id
-        self.cookie_path = os.path.join(helpers.documents.DOCUMENTS_ROOT_PATH, document_id, '.skeazo')
+        self.cookie_path = helpers.documents.get_document_cookie_path(document_id)
         self.content = {}
 
     def __enter__(self):

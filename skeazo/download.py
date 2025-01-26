@@ -14,8 +14,9 @@ def download(args):
     """Download a document from an url
     """
 
+    # Note. `id` is added to args Namespace so download() can be chained with another core function of skeazo-cli (eg. convert())
     document_url = args.url
-    document_id = helpers.documents.get_document_id_from_url(document_url)
+    document_id = args.id = helpers.documents.get_document_id_from_url(document_url)
 
     logger.debug("Download a document from an url: %s [id: %s]", document_url, document_id)
 
@@ -27,7 +28,7 @@ def download(args):
 
     # Save url into cookie
     with helpers.cookie.Cookie(document_id) as cookie:
-        cookie[helpers.cookie.Cookie.SOURCE_URI] = document_url
+        cookie[helpers.cookie.SOURCE_URI] = document_url
 
     # Download document
     document_raw_html_path = helpers.documents.get_document_raw_html_path(document_id)
@@ -45,12 +46,12 @@ def download(args):
                 fd.write(chunk.decode(encoding, 'ignore'))
 
         print("ID: {}".format(document_id))
-        return True
+        return args
     
     except requests.ConnectTimeout:
         logger.debug("URL inaccessible (timeout), check your internet connection")
-        return False
+        return None
     
     except requests.ConnectionError:
         logger.debug("URL inaccessible (connection error), check your internet connection")
-        return False
+        return None
