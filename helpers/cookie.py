@@ -36,3 +36,6 @@ class Cookie:
         if self.content:
             with open(self.cookie_path, 'w') as f:
                 yaml.dump(self.content, f)
+    
+    def get(self, entry):
+        return self.content.get(entry, '')
