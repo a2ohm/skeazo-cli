@@ -15,6 +15,20 @@ logging.basicConfig(level=logging.DEBUG)
 parser = argparse.ArgumentParser(description="Get and clean documents for the Neomignes project")
 subparsers = parser.add_subparsers()
 
+# Create the parser for the 'get' command
+def do_get(args):
+    """Get a document: download it from an URL, convert it into markdown and clean it
+    """
+    args = skeazo.download.download(args)
+
+    if args:
+        skeazo.convert.convert(args)
+        skeazo.clean.clean(args)
+
+parser_get = subparsers.add_parser('get', help="Get a document: download it from an URL, convert it into markdown and clean it")
+parser_get.add_argument('url', help="Document url")
+parser_get.set_defaults(func=do_get)
+
 # Create the parser for the 'download' command
 parser_download = subparsers.add_parser('download', help="Download a document")
 parser_download.add_argument('url', help="Document url")
