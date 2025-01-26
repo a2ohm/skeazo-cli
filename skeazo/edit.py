@@ -14,7 +14,6 @@ def edit(args):
     document_id = args.id
     document_raw_md_path = helpers.documents.get_document_raw_md_path(document_id)
     document_edited_md_path = helpers.documents.get_document_edited_md_path(document_id)
-    document_cleaned_md_path = helpers.documents.get_document_cleaned_md_path(document_id)
     document_logfile_path = helpers.documents.get_document_logfile_path(document_id)
 
     logging.debug("Edit document {}".format(document_id))
@@ -22,11 +21,8 @@ def edit(args):
     if not os.path.isfile(document_edited_md_path):
         # The edited file does not exist
         # Create it from (by order of priority)
-        # - cleaned markdown file
         # - raw markdown file
-        if os.path.isfile(document_cleaned_md_path):
-            in_filepath = document_cleaned_md_path
-        elif os.path.isfile(document_raw_md_path):
+        if os.path.isfile(document_raw_md_path):
             in_filepath = document_raw_md_path
         else:
             logger.error("Markdown file not found.")

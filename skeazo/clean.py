@@ -5,6 +5,7 @@ import logging
 
 import re
 import os
+import datetime
 import helpers.documents
 
 CHAR_NBSP = ' '
@@ -15,14 +16,14 @@ def clean(args):
     document_id = args.id
     document_raw_md_path = helpers.documents.get_document_raw_md_path(document_id)
     document_edited_md_path = helpers.documents.get_document_edited_md_path(document_id)
-    document_cleaned_md_path = helpers.documents.get_document_cleaned_md_path(document_id)
+    document_tmp_md_path = helpers.documents.get_document_tmp_md_path(document_id)
+    document_logfile_path = helpers.documents.get_document_logfile_path(document_id)
 
     # Create the cleaned file from (by order of priority)
-    # - itself
     # - the edited file
     # - the raw file
 
-    if args.force == 'from-raw':
+    if hasattr(args, 'force') and args.force == 'from-raw':
         if os.path.isfile(document_raw_md_path):
             logger.info('Clean document from raw version. (forced)')
             in_filepath = document_raw_md_path
@@ -30,17 +31,6 @@ def clean(args):
             logger.error("Raw markdown file not found.")
             logger.error(f"Run ./skeazo-cli.py convert {document_id}")
             return
-    elif args.force == 'from-edited':
-        if os.path.isfile(document_edited_md_path):
-            logger.info('Clean document from edited version (forced).')
-            in_filepath = document_edited_md_path
-        else:
-            logger.error("Edited markdown file not found.")
-            logger.error(f"Run ./skeazo-cli.py edit {document_id}")
-            return
-    elif os.path.isfile(document_cleaned_md_path):
-        logger.info('Clean document from cleaned version of itself.')
-        in_filepath = document_cleaned_md_path
     elif os.path.isfile(document_edited_md_path):
         logger.info('Clean document from edited version.')
         in_filepath = document_edited_md_path
@@ -52,19 +42,18 @@ def clean(args):
         logging.error(f"Run ./skeazo-cli.py convert {document_id}")
         return
     
+    # Do cleaning line by line and save changes in the temporary file
     with open(in_filepath, 'r', encoding='utf-8') as file_in:
-        with open(document_cleaned_md_path, 'w', encoding='utf-8') as file_out:
-            in_header = False
-
+        with open(document_tmp_md_path, 'w', encoding='utf-8') as file_out:
             for line in file_in.readlines():
-                # Header is not cleaned
-                if line == "---\n":
-                    in_header = not in_header
-                    file_out.write(line)
-                elif in_header:
-                    file_out.write(line)
-                else:
-                    file_out.write(do_cleaning(line))
+                file_out.write(do_cleaning(line))
+    
+    # Swap the temporary file with the edited file
+    os.replace(document_tmp_md_path, document_edited_md_path)
+
+    # Log cleaning
+    with open(document_logfile_path, 'a', encoding='utf-8') as f:
+        f.write(f"- ({datetime.datetime.now():%Y-%m-%d}) Nettoyage automatique par Skeazo\n")
 
 def do_cleaning(line):
     # Strip leading and trailling spaces
