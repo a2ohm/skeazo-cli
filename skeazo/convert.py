@@ -5,6 +5,7 @@ import logging
 
 import helpers.documents
 import helpers.cookie
+import helpers.index
 
 from markdownify import markdownify
 from collections import namedtuple
@@ -30,7 +31,7 @@ def convert(args):
     Metadata = namedtuple('Metadata', ['prompt', 'cookie_field', 'default_value'])
 
     with helpers.cookie.Cookie(document_id) as cookie:
-        metadatas = {
+        metadata = {
             'title': Metadata("Titre du document", helpers.cookie.TITLE, rawSoup.title.text.replace('\n', '') or ''),
             'author': Metadata("Auteur", helpers.cookie.AUTHOR, ''),
             'publication': Metadata("Date de publication", helpers.cookie.PUBLICATION, ''),
@@ -39,7 +40,7 @@ def convert(args):
         }
 
         for item in ['title', 'author', 'publication', 'source_name', 'source_uri']:
-            entry = metadatas[item]
+            entry = metadata[item]
 
             default_value = cookie.get(entry.cookie_field, '') or entry.default_value
 
@@ -58,3 +59,7 @@ def convert(args):
     document_raw_md_path = helpers.documents.get_document_raw_md_path(document_id)
     with open(document_raw_md_path, 'w', encoding="utf-8") as fd:
         fd.write(rawMd)
+
+    # Add the document to the index
+    index = helpers.index.Index()
+    index.add_document(document_id, metadata)
