@@ -9,6 +9,7 @@ import skeazo.convert
 import skeazo.clean
 import skeazo.edit
 import skeazo.list
+import skeazo.index
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -51,9 +52,13 @@ parser_edit = subparsers.add_parser('edit', help="Edit manually the markdown fil
 parser_edit.add_argument('id', help="Document id")
 parser_edit.set_defaults(func=skeazo.edit.edit)
 
+# Create the parser for the 'index' command
+parser_index = subparsers.add_parser('index', help="Handle the skeazo index")
+parser_index.add_argument('action', help="Action", choices=['init'])
+parser_index.set_defaults(func=skeazo.index.do_action)
+
 # Create the parser for the 'list' command
 parser_list = subparsers.add_parser('list', help="List documents")
-#parser_list.add_argument('id', help="Document id")
 parser_list.set_defaults(func=skeazo.list.list)
 
 # Parse
