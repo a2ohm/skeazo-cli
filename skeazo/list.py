@@ -6,13 +6,12 @@ import logging
 import os
 import helpers.documents
 import helpers.cookie
+import helpers.index
 
 logger = logging.getLogger(__name__)
 
 def list(args):
+    index = helpers.index.Index()
 
-    with os.scandir(helpers.documents.DOCUMENTS_ROOT_PATH) as it :
-        for entry in it:
-            if entry.is_dir():
-                with helpers.cookie.Cookie(entry.name) as cookie:
-                    print("{} {} ({})".format(entry.name, cookie.get(helpers.cookie.TITLE), cookie.get(helpers.cookie.AUTHOR)))
+    for document in index.list_all_documents():
+        print(f"{document.id} {document.title} ({document.author})")
