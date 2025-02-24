@@ -62,4 +62,6 @@ def convert(args):
 
     # Add the document to the index
     index = helpers.index.Index()
-    index.add_document(document_id, metadata)
+    
+    with helpers.cookie.Cookie(document_id) as cookie:
+        index.add_document(document_id, cookie)
